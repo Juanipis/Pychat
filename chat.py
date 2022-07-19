@@ -87,6 +87,11 @@ def cliente(ventanaPrincipal, user, ventana):
     try:
         # ------------------Variables de primer uso--------------------------#
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        mensaje_ip = tk.Label(ventanaPrincipal, text='Escribe la direccion ip del servidor')
+        mensaje_ip.pack()
+        cajon_mensaje_ip = tk.Entry(ventanaPrincipal)
+        cajon_mensaje_ip.pack()
 
 
         def empezar_cliente():
@@ -119,18 +124,18 @@ def cliente(ventanaPrincipal, user, ventana):
             except ConnectionResetError:
                 ventanaPrincipal.destroy()
 
-        def ingrsar_ip():
-            i = 0
-            while i <= 255:
+        def ingrsar_ip(mensaje_ip, cajon_mensaje_ip, boton_mensaje_ip):
+            while True:
                 try:
-                    clientsocket.connect(('192.168.1.%s' %i, 5151))
+                    clientsocket.connect((cajon_mensaje_ip.get(), 5151))
+                    mensaje_ip.pack_forget()
+                    cajon_mensaje_ip.pack_forget()
+                    boton_mensaje_ip.pack_forget()
                     empezar_cliente()
                     break
-                except TimeoutError:
-                    i += 1
-                    #ingrsar_ip(mensaje_ip, cajon_mensaje_ip, boton_mensaje_ip)
-                    print('Error de conexion %s' %i)
-
+                except ConnectionRefusedError:
+                    ingrsar_ip(mensaje_ip, cajon_mensaje_ip, boton_mensaje_ip)
+                    print('Error de conexion')
 
 
 
@@ -142,7 +147,8 @@ def cliente(ventanaPrincipal, user, ventana):
                 print("Exito de cierre de socket del cliente")
         ventanaPrincipal.protocol("WM_DELETE_WINDOW", cerrando_conexion)
 
-        ingrsar_ip()
+        boton_mensaje_ip = tk.Button(ventanaPrincipal, text='Empezar', command=lambda :ingrsar_ip(mensaje_ip, cajon_mensaje_ip, boton_mensaje_ip))
+        boton_mensaje_ip.pack()
 
     except ConnectionResetError:
         ventanaPrincipal.destroy()
